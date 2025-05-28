@@ -28,12 +28,7 @@ export async function executeBackupProcess(): Promise<void> {
     const backupResult = await createMongoBackup(mongoUri, TEMP_BACKUP_DIR)
 
     backupFilePath = backupResult.backupFilePath
-
-    try {
-      await access(backupFilePath)
-    } catch {
-      throw new Error(`Backup file was not created: ${backupFilePath}`)
-    }
+    await access(backupFilePath)
 
     await uploadFileToS3(
       s3Config,
