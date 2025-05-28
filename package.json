@@ -1,0 +1,25 @@
+{
+  "name": "mongodb-s3-backup",
+  "version": "1.0.0",
+  "description": "A tool to backup MongoDB databases to AWS S3",
+  "author": "Matthias Kretschmann <m@kretschmann.io>",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.817.0",
+    "@aws-sdk/lib-storage": "3.817.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@kremalicious/config": "1.1.0",
+    "@types/node": "22.15.23",
+    "typescript": "5.8.3"
+  }
+}
