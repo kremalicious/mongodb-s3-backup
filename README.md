@@ -16,7 +16,7 @@ A robust, strongly-typed MongoDB backup script that creates compressed database 
 - **Strongly typed** - Full TypeScript implementation with strict type checking
 - **Docker-first** - Designed for containerized deployment
 - Compressed MongoDB backups using `mongodump`
-- S3 upload with progress tracking
+- Robust S3 upload with progress tracking
 - Automatic cleanup of temporary files
 
 
@@ -81,7 +81,7 @@ npm start
 
 ## Required Environment Variables
 
-All environment variables are **strictly validated** at startup:
+All environment variables are validated at startup:
 
 - `MONGO_URL` - MongoDB connection string
 - `S3_BUCKET_NAME` - Target S3 bucket name
