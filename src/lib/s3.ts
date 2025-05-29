@@ -47,7 +47,11 @@ export async function uploadFileToS3(
         const percentage: number = Math.round(
           (progress.loaded / progress.total) * 100
         )
-        process.stdout.write(`Upload progress: ${percentage}%\r`)
+        const loaded = (progress.loaded / 1024 / 1024).toFixed(2)
+        const total = (progress.total / 1024 / 1024).toFixed(2)
+        process.stdout.write(
+          `Upload progress: ${percentage}% (${loaded}/${total} MB)\r`
+        )
       }
     })
 
@@ -61,5 +65,6 @@ export async function uploadFileToS3(
     throw error
   } finally {
     fileStream.destroy()
+    s3Client.destroy()
   }
 }
