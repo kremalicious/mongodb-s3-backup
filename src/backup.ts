@@ -1,4 +1,3 @@
-import { access } from 'node:fs/promises'
 import path from 'node:path'
 import { getRequiredEnvVariables } from './lib/env'
 import { removeDirectory, removeLocalFile } from './lib/filesystem'
@@ -26,9 +25,7 @@ export async function executeBackupProcess(): Promise<void> {
     }
 
     const backupResult = await createMongoBackup(mongoUri, TEMP_BACKUP_DIR)
-
     backupFilePath = backupResult.backupFilePath
-    await access(backupFilePath)
 
     await uploadFileToS3(
       s3Config,
