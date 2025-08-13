@@ -8,23 +8,19 @@ export interface S3ClientConfig {
   readonly secretAccessKey: string
 }
 
-function createS3Client(config: S3ClientConfig): S3Client {
-  return new S3Client({
-    region: config.region,
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey
-    }
-  })
-}
-
 export async function uploadFileToS3(
   s3Config: S3ClientConfig,
   bucketName: string,
   filePath: string,
   s3Key: string
 ): Promise<PutObjectCommandOutput> {
-  const s3Client = createS3Client(s3Config)
+  const s3Client = new S3Client({
+    region: s3Config.region,
+    credentials: {
+      accessKeyId: s3Config.accessKeyId,
+      secretAccessKey: s3Config.secretAccessKey
+    }
+  })
   console.log(`Uploading ${s3Key} to S3 bucket ${bucketName}...`)
 
   const fileStream = createReadStream(filePath)
@@ -33,11 +29,8 @@ export async function uploadFileToS3(
     const upload = new Upload({
       client: s3Client,
       params: {
-        // biome-ignore lint/style/useNamingConvention: S3 API
         Bucket: bucketName,
-        // biome-ignore lint/style/useNamingConvention: S3 API
         Key: s3Key,
-        // biome-ignore lint/style/useNamingConvention: S3 API
         Body: fileStream
       }
     })

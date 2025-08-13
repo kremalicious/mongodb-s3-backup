@@ -33,9 +33,6 @@ COPY --from=builder --chown=backupuser:backupuser /backup/dist ./dist
 COPY --from=builder --chown=backupuser:backupuser /backup/node_modules ./node_modules
 COPY --from=builder --chown=backupuser:backupuser /backup/package.json ./package.json
 
-RUN mkdir -p /backup/tmp_mongo_backups && \
-    chown -R backupuser:backupuser /backup/tmp_mongo_backups
-
 USER backupuser
 
 CMD ["npm", "run", "start"]

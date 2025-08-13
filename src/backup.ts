@@ -1,10 +1,11 @@
+import os from 'node:os'
 import path from 'node:path'
 import { getRequiredEnvVariables } from './lib/env'
 import { removeDirectory, removeLocalFile } from './lib/filesystem'
 import { createMongoBackup } from './lib/mongodb'
 import { uploadFileToS3 } from './lib/s3'
 
-const TEMP_BACKUP_DIR: string = path.join(process.cwd(), 'tmp_mongo_backups')
+const TEMP_BACKUP_DIR: string = path.join(os.tmpdir(), 'tmp_mongo_backups')
 
 export async function executeBackupProcess(): Promise<void> {
   let backupFilePath: string | undefined
