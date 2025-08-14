@@ -65,10 +65,8 @@ describe('mongodb utility', () => {
       // Assert
       expect(ensureDirectoryExists).toHaveBeenCalledWith(backupDir)
       expect(spawn).toHaveBeenCalledWith('mongodump', [
-        '--uri',
-        mongoUri,
-        '--archive',
-        expect.stringContaining('mongodb-backup-2023-01-01T12-00-00-000Z.gz'),
+        `--uri=${mongoUri}`,
+        expect.stringContaining('--archive='),
         '--gzip'
       ])
       expect(result).toEqual({

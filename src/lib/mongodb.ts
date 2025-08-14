@@ -19,10 +19,8 @@ export async function createMongoBackup(
 
   // using spawn to prevent injection vulnerabilities
   const mongodump = spawn('mongodump', [
-    '--uri',
-    mongoUri,
-    '--archive',
-    backupFilePath,
+    `--uri=${mongoUri}`,
+    `--archive=${backupFilePath}`,
     '--gzip'
   ])
 
