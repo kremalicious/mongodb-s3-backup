@@ -9,6 +9,7 @@ A robust, strongly-typed MongoDB backup script that creates compressed database 
 - [Local Development (Alternative to Docker)](#local-development-alternative-to-docker)
 - [Required Environment Variables](#required-environment-variables)
 - [Error Handling](#error-handling)
+- [S3 Bucket + IAM User Helper](#s3-bucket--iam-user-helper)
 
 ## Features
 
@@ -99,3 +100,27 @@ The application will fail fast with clear error messages if:
 - File system operations fail
 
 Backup files are named: `mongodb-backup-YYYY-MM-DDTHH-MM-SS-SSSZ.gz`
+
+## S3 Bucket + IAM User Helper
+
+Creates a private, encrypted S3 bucket and an IAM user with least-privilege access, then prints `AWS_*` exports you can paste into your environment.
+
+```bash
+# Write-only access to the whole bucket
+BUCKET=my-unique-bucket REGION=eu-central-1 USER=backup-writer \
+  bash scripts/create-s3-bucket-and-user.sh
+
+# Read-write access scoped to a prefix
+BUCKET=my-unique-bucket REGION=eu-central-1 USER=backup-rw PERM=rw PREFIX=inbox/ \
+  bash scripts/create-s3-bucket-and-user.sh
+```
+
+On success, it prints:
+
+```bash
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=eu-central-1
+```
+
+Prerequisite: AWS CLI authenticated with permissions to manage S3 and IAM.
