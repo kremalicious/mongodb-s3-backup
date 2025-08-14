@@ -77,6 +77,7 @@ fi
 "${IAM[@]}" put-user-policy --user-name "$USER" --policy-name "$POLICY_NAME" --policy-document "$POLICY_JSON" >/dev/null
 
 # ---- final output ----
+echo "export S3_BUCKET_NAME=$BUCKET"
 echo "export AWS_ACCESS_KEY_ID=$ACCESS_KEY_ID"
 echo "export AWS_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY"
 echo "export AWS_REGION=$REGION"
