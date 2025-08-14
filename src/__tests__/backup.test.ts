@@ -35,7 +35,6 @@ describe('backup process', () => {
     vi.clearAllMocks()
     vi.mocked(getRequiredEnvVariables).mockReturnValue(mockEnvVars)
     vi.mocked(createMongoBackup).mockResolvedValue(mockBackupResult)
-    // biome-ignore lint/style/useNamingConvention: S3 API
     vi.mocked(uploadFileToS3).mockResolvedValue({ ETag: '"abc123"' } as never)
     vi.mocked(removeLocalFile).mockResolvedValue(undefined)
     vi.mocked(removeDirectory).mockResolvedValue(undefined)

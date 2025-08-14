@@ -11,12 +11,10 @@ vi.mock('node:fs', () => ({
 
 // Mock AWS SDK
 vi.mock('@aws-sdk/client-s3', () => ({
-  // biome-ignore lint/style/useNamingConvention: <explanation>
   S3Client: vi.fn()
 }))
 
 vi.mock('@aws-sdk/lib-storage', () => ({
-  // biome-ignore lint/style/useNamingConvention: <explanation>
   Upload: vi.fn()
 }))
 
@@ -64,7 +62,6 @@ describe('s3 utility', () => {
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
-      // biome-ignore lint/style/useNamingConvention: S3 API
       const mockResult = { ETag: '"abc123"' }
 
       mockUpload.done.mockResolvedValue(mockResult)
@@ -89,11 +86,8 @@ describe('s3 utility', () => {
       expect(Upload).toHaveBeenCalledWith({
         client: mockS3Client,
         params: {
-          // biome-ignore lint/style/useNamingConvention: S3 API
           Bucket: bucketName,
-          // biome-ignore lint/style/useNamingConvention: S3 API
           Key: s3Key,
-          // biome-ignore lint/style/useNamingConvention: S3 API
           Body: mockFileStream
         }
       })
@@ -113,7 +107,6 @@ describe('s3 utility', () => {
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
-      // biome-ignore lint/style/useNamingConvention: S3 API
       const mockResult = { ETag: '"abc123"' }
 
       mockUpload.on.mockImplementation(
@@ -174,7 +167,6 @@ describe('s3 utility', () => {
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
-      // biome-ignore lint/style/useNamingConvention: S3 API
       const mockResult = { ETag: '"abc123"' }
 
       mockUpload.on.mockImplementation(
@@ -207,7 +199,6 @@ describe('s3 utility', () => {
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
-      // biome-ignore lint/style/useNamingConvention: S3 API
       const mockResult = { ETag: '"abc123"' }
 
       mockUpload.on.mockImplementation(
