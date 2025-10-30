@@ -73,9 +73,9 @@ AWS_REGION=eu-central-1
 Then use these commands:
 
 ```bash
-npm install
-npm run build
-npm start
+bun install
+bun run build
+bun run start
 ```
 
 **Note**: Ensure you have MongoDB tools (`mongodump`) installed locally when running outside Docker.
