@@ -52,8 +52,12 @@ describe('s3 utility', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(createReadStream).mockReturnValue(mockFileStream as never)
-    vi.mocked(S3Client).mockImplementation(() => mockS3Client as never)
-    vi.mocked(Upload).mockImplementation(() => mockUpload as never)
+    vi.mocked(S3Client).mockImplementation(function mockS3ClientCtor() {
+      return mockS3Client as never
+    })
+    vi.mocked(Upload).mockImplementation(function mockUploadCtor() {
+      return mockUpload as never
+    })
   })
 
   describe('uploadFileToS3', () => {
