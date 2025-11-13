@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { executeBackupProcess } from '../backup'
-import { getRequiredEnvVariables } from '../lib/env'
+import { getEnvVariables } from '../lib/env'
 import { removeDirectory, removeLocalFile } from '../lib/filesystem'
 import { createMongoBackup } from '../lib/mongodb'
 import { uploadFileToS3 } from '../lib/s3'
@@ -11,7 +11,6 @@ vi.mock('../lib/filesystem')
 vi.mock('../lib/mongodb')
 vi.mock('../lib/s3')
 
-// Mock console methods
 const consoleSpy = {
   log: vi.spyOn(console, 'log').mockImplementation(() => {}),
   error: vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -23,7 +22,8 @@ describe('backup process', () => {
     s3BucketName: 'test-bucket',
     awsAccessKeyId: 'test-access-key',
     awsSecretAccessKey: 'test-secret-key',
-    awsRegion: 'us-east-1'
+    awsRegion: 'us-east-1',
+    awsEndpointUrl: 'https://s3.custom-endpoint.com'
   }
 
   const mockBackupResult = {
@@ -33,7 +33,7 @@ describe('backup process', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(getRequiredEnvVariables).mockReturnValue(mockEnvVars)
+    vi.mocked(getEnvVariables).mockReturnValue(mockEnvVars)
     vi.mocked(createMongoBackup).mockResolvedValue(mockBackupResult)
     vi.mocked(uploadFileToS3).mockResolvedValue({ ETag: '"abc123"' } as never)
     vi.mocked(removeLocalFile).mockResolvedValue(undefined)
@@ -42,11 +42,9 @@ describe('backup process', () => {
 
   describe('executeBackupProcess', () => {
     it('should execute backup process successfully', async () => {
-      // Act
       await executeBackupProcess()
 
-      // Assert
-      expect(getRequiredEnvVariables).toHaveBeenCalled()
+      expect(getEnvVariables).toHaveBeenCalled()
       expect(createMongoBackup).toHaveBeenCalledWith(
         mockEnvVars.mongoUri,
         expect.stringContaining('tmp_mongo_backups')
@@ -55,7 +53,8 @@ describe('backup process', () => {
         {
           region: mockEnvVars.awsRegion,
           accessKeyId: mockEnvVars.awsAccessKeyId,
-          secretAccessKey: mockEnvVars.awsSecretAccessKey
+          secretAccessKey: mockEnvVars.awsSecretAccessKey,
+          endpointUrl: mockEnvVars.awsEndpointUrl
         },
         mockEnvVars.s3BucketName,
         mockBackupResult.backupFilePath,
@@ -70,11 +69,9 @@ describe('backup process', () => {
     })
 
     it('should handle backup creation failure', async () => {
-      // Arrange
       const error = new Error('MongoDB connection failed')
       vi.mocked(createMongoBackup).mockRejectedValue(error)
 
-      // Act & Assert
       await expect(executeBackupProcess()).rejects.toThrow(
         'MongoDB connection failed'
       )
@@ -91,11 +88,9 @@ describe('backup process', () => {
     })
 
     it('should handle S3 upload failure', async () => {
-      // Arrange
       const error = new Error('S3 upload failed')
       vi.mocked(uploadFileToS3).mockRejectedValue(error)
 
-      // Act & Assert
       await expect(executeBackupProcess()).rejects.toThrow('S3 upload failed')
       expect(consoleSpy.error).toHaveBeenCalledWith('Backup failed:', error)
       expect(removeLocalFile).toHaveBeenCalledWith(
@@ -107,14 +102,11 @@ describe('backup process', () => {
     })
 
     it('should handle cleanup failure gracefully', async () => {
-      // Arrange
       const cleanupError = new Error('Cleanup failed')
       vi.mocked(removeLocalFile).mockRejectedValue(cleanupError)
 
-      // Act
       await executeBackupProcess()
 
-      // Assert
       expect(consoleSpy.error).toHaveBeenCalledWith(
         'Cleanup failed but continuing:',
         cleanupError
@@ -122,14 +114,11 @@ describe('backup process', () => {
     })
 
     it('should handle directory cleanup failure gracefully', async () => {
-      // Arrange
       const cleanupError = new Error('Directory cleanup failed')
       vi.mocked(removeDirectory).mockRejectedValue(cleanupError)
 
-      // Act
       await executeBackupProcess()
 
-      // Assert
       expect(consoleSpy.error).toHaveBeenCalledWith(
         'Cleanup failed but continuing:',
         cleanupError
@@ -137,13 +126,11 @@ describe('backup process', () => {
     })
 
     it('should handle env variable failure', async () => {
-      // Arrange
       const error = new Error('MONGO_URL environment variable is not set.')
-      vi.mocked(getRequiredEnvVariables).mockImplementation(() => {
+      vi.mocked(getEnvVariables).mockImplementation(() => {
         throw error
       })
 
-      // Act & Assert
       await expect(executeBackupProcess()).rejects.toThrow(
         'MONGO_URL environment variable is not set.'
       )
@@ -155,11 +142,9 @@ describe('backup process', () => {
     })
 
     it('should handle non-Error objects thrown', async () => {
-      // Arrange
       const errorString = 'Non-Error object thrown'
       vi.mocked(createMongoBackup).mockRejectedValue(errorString)
 
-      // Act & Assert
       await expect(executeBackupProcess()).rejects.toBe(errorString)
       expect(consoleSpy.error).toHaveBeenCalledWith(
         'Backup failed:',
@@ -173,13 +158,11 @@ describe('backup process', () => {
     })
 
     it('should perform cleanup even when no backup file path exists', async () => {
-      // Arrange
       const error = new Error('Early failure')
-      vi.mocked(getRequiredEnvVariables).mockImplementation(() => {
+      vi.mocked(getEnvVariables).mockImplementation(() => {
         throw error
       })
 
-      // Act & Assert
       await expect(executeBackupProcess()).rejects.toThrow('Early failure')
       expect(removeLocalFile).not.toHaveBeenCalled()
       expect(removeDirectory).toHaveBeenCalledWith(

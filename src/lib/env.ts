@@ -1,9 +1,10 @@
-export interface RequiredEnvVariables {
+export interface EnvVariables {
   readonly mongoUri: string
   readonly s3BucketName: string
   readonly awsAccessKeyId: string
   readonly awsSecretAccessKey: string
   readonly awsRegion: string
+  readonly awsEndpointUrl?: string
 }
 
 function validateEnvVariable(value: string | undefined, name: string): string {
@@ -11,7 +12,7 @@ function validateEnvVariable(value: string | undefined, name: string): string {
   return value
 }
 
-export function getRequiredEnvVariables(): RequiredEnvVariables {
+export function getEnvVariables(): EnvVariables {
   return {
     mongoUri: validateEnvVariable(process.env.MONGO_URL, 'MONGO_URL'),
     s3BucketName: validateEnvVariable(
@@ -26,6 +27,7 @@ export function getRequiredEnvVariables(): RequiredEnvVariables {
       process.env.AWS_SECRET_ACCESS_KEY,
       'AWS_SECRET_ACCESS_KEY'
     ),
-    awsRegion: validateEnvVariable(process.env.AWS_REGION, 'AWS_REGION')
+    awsRegion: validateEnvVariable(process.env.AWS_REGION, 'AWS_REGION'),
+    awsEndpointUrl: process.env.AWS_ENDPOINT_URL
   }
 }

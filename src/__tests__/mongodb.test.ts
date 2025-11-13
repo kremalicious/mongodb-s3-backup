@@ -3,12 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ensureDirectoryExists } from '../lib/filesystem'
 import { createMongoBackup } from '../lib/mongodb'
 
-// Mock child_process spawn
 vi.mock('node:child_process', () => ({
   spawn: vi.fn()
 }))
 
-// Mock filesystem module
 vi.mock('../lib/filesystem', () => ({
   ensureDirectoryExists: vi.fn()
 }))
@@ -33,7 +31,6 @@ describe('mongodb utility', () => {
 
   describe('createMongoBackup', () => {
     it('should create backup successfully', async () => {
-      // Arrange
       const mongoUri = 'mongodb://localhost:27017/test'
       const backupDir = '/tmp/backups'
 
@@ -59,10 +56,8 @@ describe('mongodb utility', () => {
 
       vi.mocked(spawn).mockReturnValue(mockMongodump as unknown as ChildProcess)
 
-      // Act
       const result = await createMongoBackup(mongoUri, backupDir)
 
-      // Assert
       expect(ensureDirectoryExists).toHaveBeenCalledWith(backupDir)
       expect(spawn).toHaveBeenCalledWith('mongodump', [
         `--uri=${mongoUri}`,
@@ -81,7 +76,6 @@ describe('mongodb utility', () => {
     })
 
     it('should handle mongodump failure with exit code', async () => {
-      // Arrange
       const mongoUri = 'mongodb://localhost:27017/test'
       const backupDir = '/tmp/backups'
       const errorMessage = 'Connection failed'
@@ -107,7 +101,6 @@ describe('mongodb utility', () => {
 
       vi.mocked(spawn).mockReturnValue(mockMongodump as unknown as ChildProcess)
 
-      // Act & Assert
       await expect(createMongoBackup(mongoUri, backupDir)).rejects.toThrow(
         `mongodump failed with exit code 1: ${errorMessage}`
       )
@@ -118,7 +111,6 @@ describe('mongodb utility', () => {
     })
 
     it('should handle mongodump error event', async () => {
-      // Arrange
       const mongoUri = 'mongodb://localhost:27017/test'
       const backupDir = '/tmp/backups'
       const error = new Error('Command not found')
@@ -139,14 +131,12 @@ describe('mongodb utility', () => {
 
       vi.mocked(spawn).mockReturnValue(mockMongodump as unknown as ChildProcess)
 
-      // Act & Assert
       await expect(createMongoBackup(mongoUri, backupDir)).rejects.toThrow(
         'mongodump failed: Command not found'
       )
     })
 
     it('should handle mongodump failure with no stderr', async () => {
-      // Arrange
       const mongoUri = 'mongodb://localhost:27017/test'
       const backupDir = '/tmp/backups'
 
@@ -167,14 +157,12 @@ describe('mongodb utility', () => {
 
       vi.mocked(spawn).mockReturnValue(mockMongodump as unknown as ChildProcess)
 
-      // Act & Assert
       await expect(createMongoBackup(mongoUri, backupDir)).rejects.toThrow(
         'mongodump failed with exit code 1: No error details'
       )
     })
 
     it('should log stdout when backup is successful', async () => {
-      // Arrange
       const mongoUri = 'mongodb://localhost:27017/test'
       const backupDir = '/tmp/backups'
       const stdoutMessage = 'Writing test.collection to archive'
@@ -199,10 +187,8 @@ describe('mongodb utility', () => {
 
       vi.mocked(spawn).mockReturnValue(mockMongodump as unknown as ChildProcess)
 
-      // Act
       await createMongoBackup(mongoUri, backupDir)
 
-      // Assert
       expect(consoleSpy.log).toHaveBeenCalledWith(
         'mongodump output:',
         stdoutMessage

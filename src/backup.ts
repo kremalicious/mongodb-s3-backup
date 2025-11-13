@@ -1,9 +1,9 @@
 import os from 'node:os'
 import path from 'node:path'
-import { getRequiredEnvVariables } from './lib/env'
+import { getEnvVariables } from './lib/env'
 import { removeDirectory, removeLocalFile } from './lib/filesystem'
 import { createMongoBackup } from './lib/mongodb'
-import { uploadFileToS3 } from './lib/s3'
+import { type S3ClientConfig, uploadFileToS3 } from './lib/s3'
 
 const TEMP_BACKUP_DIR: string = path.join(os.tmpdir(), 'tmp_mongo_backups')
 
@@ -16,13 +16,15 @@ export async function executeBackupProcess(): Promise<void> {
       s3BucketName,
       awsAccessKeyId,
       awsSecretAccessKey,
-      awsRegion
-    } = getRequiredEnvVariables()
+      awsRegion,
+      awsEndpointUrl
+    } = getEnvVariables()
 
-    const s3Config = {
+    const s3Config: S3ClientConfig = {
       region: awsRegion,
       accessKeyId: awsAccessKeyId,
-      secretAccessKey: awsSecretAccessKey
+      secretAccessKey: awsSecretAccessKey,
+      endpointUrl: awsEndpointUrl
     }
 
     const backupResult = await createMongoBackup(mongoUri, TEMP_BACKUP_DIR)

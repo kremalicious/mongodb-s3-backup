@@ -6,6 +6,7 @@ export interface S3ClientConfig {
   readonly region: string
   readonly accessKeyId: string
   readonly secretAccessKey: string
+  readonly endpointUrl?: string
 }
 
 export async function uploadFileToS3(
@@ -19,7 +20,8 @@ export async function uploadFileToS3(
     credentials: {
       accessKeyId: s3Config.accessKeyId,
       secretAccessKey: s3Config.secretAccessKey
-    }
+    },
+    endpoint: s3Config.endpointUrl ? s3Config.endpointUrl : undefined
   })
   console.log(`Uploading ${s3Key} to S3 bucket ${bucketName}...`)
 

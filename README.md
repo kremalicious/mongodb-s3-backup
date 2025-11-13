@@ -1,13 +1,13 @@
 # MongoDB S3 Backup
 
-A robust, strongly-typed MongoDB backup script that creates compressed database backups and uploads them to AWS S3 with extensive error handling.
+A robust, strongly-typed MongoDB backup script that creates compressed database backups and uploads them to AWS S3 or any S3-compatible storage with extensive error handling.
 
 - [Features](#features)
 - [Docker Usage (Recommended)](#docker-usage-recommended)
   - [Build and Run](#build-and-run)
   - [Using Environment File](#using-environment-file)
 - [Local Development (Alternative to Docker)](#local-development-alternative-to-docker)
-- [Required Environment Variables](#required-environment-variables)
+- [Environment Variables](#environment-variables)
 - [Error Handling](#error-handling)
 - [S3 Bucket + IAM User Helper](#s3-bucket--iam-user-helper)
 
@@ -19,6 +19,7 @@ A robust, strongly-typed MongoDB backup script that creates compressed database 
 - Compressed MongoDB backups using `mongodump`
 - Robust S3 upload with progress tracking
 - Automatic cleanup of temporary files
+- Supports any S3-compatible storage provider
 
 
 ## Docker Usage (Recommended)
@@ -80,15 +81,19 @@ bun run start
 
 **Note**: Ensure you have MongoDB tools (`mongodump`) installed locally when running outside Docker.
 
-## Required Environment Variables
+## Environment Variables
 
-All environment variables are validated at startup:
+All those required environment variables are validated at startup:
 
 - `MONGO_URL` - MongoDB connection string
 - `S3_BUCKET_NAME` - Target S3 bucket name
 - `AWS_ACCESS_KEY_ID` - AWS access key
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key
 - `AWS_REGION` - AWS region (e.g., eu-central-1)
+
+For using another S3-compatible storage provider apart from AWS, define the optional endpoint URL for it:
+
+- `AWS_ENDPOINT_URL` - S3-compatible service endpoint URL
 
 ## Error Handling
 

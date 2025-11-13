@@ -4,12 +4,10 @@ import { type Progress, Upload } from '@aws-sdk/lib-storage'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { type S3ClientConfig, uploadFileToS3 } from '../lib/s3'
 
-// Mock node:fs
 vi.mock('node:fs', () => ({
   createReadStream: vi.fn()
 }))
 
-// Mock AWS SDK
 vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: vi.fn()
 }))
@@ -33,7 +31,8 @@ describe('s3 utility', () => {
   const mockS3Config: S3ClientConfig = {
     region: 'us-east-1',
     accessKeyId: 'test-access-key',
-    secretAccessKey: 'test-secret-key'
+    secretAccessKey: 'test-secret-key',
+    endpointUrl: 'https://s3.custom-endpoint.com'
   }
 
   const mockFileStream = {
@@ -62,7 +61,6 @@ describe('s3 utility', () => {
 
   describe('uploadFileToS3', () => {
     it('should upload file successfully without progress', async () => {
-      // Arrange
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
@@ -70,7 +68,6 @@ describe('s3 utility', () => {
 
       mockUpload.done.mockResolvedValue(mockResult)
 
-      // Act
       const result = await uploadFileToS3(
         mockS3Config,
         bucketName,
@@ -78,14 +75,14 @@ describe('s3 utility', () => {
         s3Key
       )
 
-      // Assert
       expect(createReadStream).toHaveBeenCalledWith(filePath)
       expect(S3Client).toHaveBeenCalledWith({
         region: mockS3Config.region,
         credentials: {
           accessKeyId: mockS3Config.accessKeyId,
           secretAccessKey: mockS3Config.secretAccessKey
-        }
+        },
+        endpoint: mockS3Config.endpointUrl
       })
       expect(Upload).toHaveBeenCalledWith({
         client: mockS3Client,
@@ -107,7 +104,6 @@ describe('s3 utility', () => {
     })
 
     it('should handle upload progress', async () => {
-      // Arrange
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
@@ -126,7 +122,6 @@ describe('s3 utility', () => {
       )
       mockUpload.done.mockResolvedValue(mockResult)
 
-      // Act
       const result = await uploadFileToS3(
         mockS3Config,
         bucketName,
@@ -134,7 +129,6 @@ describe('s3 utility', () => {
         s3Key
       )
 
-      // Assert
       expect(mockUpload.on).toHaveBeenCalledWith(
         'httpUploadProgress',
         expect.any(Function)
@@ -144,7 +138,6 @@ describe('s3 utility', () => {
     })
 
     it('should handle upload error', async () => {
-      // Arrange
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
@@ -152,7 +145,6 @@ describe('s3 utility', () => {
 
       mockUpload.done.mockRejectedValue(error)
 
-      // Act & Assert
       await expect(
         uploadFileToS3(mockS3Config, bucketName, filePath, s3Key)
       ).rejects.toThrow('Upload failed')
@@ -167,7 +159,6 @@ describe('s3 utility', () => {
     })
 
     it('should handle progress without total size', async () => {
-      // Arrange
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
@@ -183,7 +174,6 @@ describe('s3 utility', () => {
       )
       mockUpload.done.mockResolvedValue(mockResult)
 
-      // Act
       const result = await uploadFileToS3(
         mockS3Config,
         bucketName,
@@ -191,7 +181,6 @@ describe('s3 utility', () => {
         s3Key
       )
 
-      // Assert
       expect(mockStdoutWrite).not.toHaveBeenCalledWith(
         expect.stringContaining('Upload progress:')
       )
@@ -199,7 +188,6 @@ describe('s3 utility', () => {
     })
 
     it('should handle progress without loaded size', async () => {
-      // Arrange
       const bucketName = 'test-bucket'
       const filePath = '/path/to/file.gz'
       const s3Key = 'backup-file.gz'
@@ -215,7 +203,6 @@ describe('s3 utility', () => {
       )
       mockUpload.done.mockResolvedValue(mockResult)
 
-      // Act
       const result = await uploadFileToS3(
         mockS3Config,
         bucketName,
@@ -223,7 +210,6 @@ describe('s3 utility', () => {
         s3Key
       )
 
-      // Assert
       expect(mockStdoutWrite).not.toHaveBeenCalledWith(
         expect.stringContaining('Upload progress:')
       )
